@@ -83,7 +83,7 @@ public class AudioFromVideoRetriever {
         // Create an FFmpeg session with the parameters for extraction of audio from video file
         String[] cmd = {
                 "-i", escapePath(videoFilePath),
-                "-vn", "-ar", "44100", "-ac", "2", "-b:a", "128k",
+                "-vn", "-ar", "44100", "-ac", "2", "-b:a", "128k", "-t", "300",
                 escapePath(outputAudioFilePath)
         };
 
