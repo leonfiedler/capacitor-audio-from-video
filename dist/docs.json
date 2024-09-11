@@ -1,0 +1,87 @@
+{
+  "api": {
+    "name": "AudioFromVideoRetrieverPlugin",
+    "slug": "audiofromvideoretrieverplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "extractAudio",
+        "signature": "(options: { path: string; outputPath: string; includeData?: boolean; }) => Promise<{ path: string; dataUrl?: string; }>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "{ path: string; outputPath: string; includeData?: boolean | undefined; }"
+          }
+        ],
+        "returns": "Promise<{ path: string; dataUrl?: string | undefined; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "extractaudio"
+      },
+      {
+        "name": "compressVideo",
+        "signature": "(options: { path: string; outputPath: string; width: number; height: number; bitrate: number; }) => Promise<{ path: string; }>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "{ path: string; outputPath: string; width: number; height: number; bitrate: number; }"
+          }
+        ],
+        "returns": "Promise<{ path: string; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "compressvideo"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'compressProgress', listenerFunc: (event: { progress: number; }) => void) => Promise<PluginListenerHandle> & PluginListenerHandle",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "",
+            "type": "'compressProgress'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "",
+            "type": "(event: { progress: number; }) => void"
+          }
+        ],
+        "returns": "Promise<PluginListenerHandle> & PluginListenerHandle",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "PluginListenerHandle"
+        ],
+        "slug": "addlistenercompressprogress"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [
+    {
+      "name": "PluginListenerHandle",
+      "slug": "pluginlistenerhandle",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "remove",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "() => Promise<void>"
+        }
+      ]
+    }
+  ],
+  "enums": [],
+  "typeAliases": [],
+  "pluginConfigs": []
+}
