@@ -2,8 +2,8 @@ package com.bazumax.capacitor.audio.from.video;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,9 +20,10 @@ import com.arthenica.ffmpegkit.ReturnCode;
 import com.arthenica.ffmpegkit.SessionState;
 import com.arthenica.ffmpegkit.Statistics;
 import com.arthenica.ffmpegkit.StatisticsCallback;
+import java.io.FileOutputStream;
+
 
 public class AudioFromVideoRetriever {
-
 
     public interface ExtractionCallback {
         void onExtractionCompleted(File file, String mimeType) throws IOException;
@@ -30,7 +31,7 @@ public class AudioFromVideoRetriever {
         void onExtractionProgress(Double progress);
     }
 
-    public File getFileObject(String path, ContentResolver resolver) {
+    public File getFileObjectLegacy(String path, ContentResolver resolver) {
         Uri u = Uri.parse(path);
         if (u != null && "content".equals(u.getScheme())) {
             Cursor cursor = resolver.query(u, new String[]{android.provider.MediaStore.Images.ImageColumns.DATA}, null, null, null);
@@ -45,7 +46,42 @@ public class AudioFromVideoRetriever {
         return null;
     }
 
+    public File getFileObject(String path, ContentResolver resolver) {
+        Uri uri = Uri.parse(path);
 
+        if (uri != null && "content".equals(uri.getScheme())) {
+            Cursor cursor = null;
+            try {
+                cursor = resolver.query(uri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (columnIndex != -1) {
+                        String fileName = cursor.getString(columnIndex);
+                        File tempFile = File.createTempFile("temp_", fileName);
+                        try (InputStream inputStream = resolver.openInputStream(uri);
+                             FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                            byte[] buffer = new byte[4096];
+                            int bytesRead;
+                            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                outputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                        return tempFile;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error querying content resolver: ", e);
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        } else if (uri != null && "file".equals(uri.getScheme())) {
+            return new File(uri.getPath());
+        }
+
+        return null;
+    }
 
     public String getDataUrlFromAudioFile(File file, String mimeType) throws IOException {
         InputStream inputStream = new FileInputStream(file);
@@ -83,7 +119,7 @@ public class AudioFromVideoRetriever {
         // Create an FFmpeg session with the parameters for extraction of audio from video file
         String[] cmd = {
                 "-i", escapePath(videoFilePath),
-                "-vn", "-ar", "44100", "-ac", "2", "-b:a", "128k", "-t", "300",
+                "-vn", "-ar", "44100", "-ac", "2", "-b:a", "128k",
                 escapePath(outputAudioFilePath)
         };
 
